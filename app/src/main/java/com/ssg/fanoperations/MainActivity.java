@@ -22,6 +22,49 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> uploadCallback;
     private static final int PICK_FILE = 101;
 
+
+    // Best-effort suppression of the Apps Script author-information strip inside
+    // this Android WebView only. Never affects desktop browsers or sign-in pages.
+    private void hideAppsScriptInfoStrip(WebView view) {
+        String url = view.getUrl();
+        if (url == null) return;
+        Uri uri = Uri.parse(url);
+        String host = uri.getHost();
+        if (!"https".equalsIgnoreCase(uri.getScheme()) ||
+            host == null ||
+            !("script.google.com".equalsIgnoreCase(host) ||
+              "script.googleusercontent.com".equalsIgnoreCase(host))) return;
+
+        String script = "(function(){"
+            + "if(window.__ssgInfoStripObserver)return;"
+            + "function hide(){"
+            + "var phrases=['This application was created by a Google Apps Script user',"
+            + "'This app was created by a Google Apps Script user',"
+            + "'এই অ্যাপ্লিকেশন কোনও Google Apps লিপি ব্যবহারকারী দ্বারা তৈরি হয়েছে',"
+            + "'এই অ্যাপ্লিকেশনটি Google Apps Script ব্যবহারকারী দ্বারা তৈরি'];"
+            + "var nodes=document.querySelectorAll('div,section,aside');"
+            + "for(var i=0;i<nodes.length;i++){var el=nodes[i];"
+            + "if(el.children.length>12)continue;"
+            + "var t=(el.innerText||'').trim();"
+            + "if(t.length>450||!phrases.some(function(p){return t.indexOf(p)!==-1}))continue;"
+            + "if(el.querySelector('input,textarea,form'))continue;"
+            + "var rect=el.getBoundingClientRect();"
+            + "if(rect.height>140||rect.top>180||rect.bottom<0)continue;"
+            + "var parent=el;"
+            + "while(parent.parentElement&&parent.parentElement!==document.body){"
+            + "var pr=parent.parentElement.getBoundingClientRect();"
+            + "if(pr.height>145||pr.top>180)break;parent=parent.parentElement;}"
+            + "parent.style.setProperty('display','none','important');"
+            + "break;}"
+            + "}"
+            + "hide();"
+            + "window.__ssgInfoStripObserver=new MutationObserver(hide);"
+            + "window.__ssgInfoStripObserver.observe(document.documentElement,"
+            + "{childList:true,subtree:true});"
+            + "})();";
+        view.evaluateJavascript(script, null);
+    }
+
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -44,6 +87,13 @@ public class MainActivity extends Activity {
             .setAcceptThirdPartyCookies(web, true);
 
         web.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                hideAppsScriptInfoStrip(view);
+            }
+
 
             @Override
             public boolean shouldOverrideUrlLoading(
