@@ -95,6 +95,7 @@ public class MainActivity extends Activity {
 
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
+        s.setDatabaseEnabled(true);
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(true);
         s.setJavaScriptCanOpenWindowsAutomatically(false);
@@ -111,6 +112,8 @@ public class MainActivity extends Activity {
                 super.onPageFinished(view, url);
                 hideAppsScriptInfoStrip(view);
                 hideAppsScriptNotice();
+                // Persist cookies that the server marks as persistent.
+                CookieManager.getInstance().flush();
             }
 
 
@@ -206,6 +209,18 @@ public class MainActivity extends Activity {
 
             uploadCallback = null;
         }
+    }
+
+    @Override
+    protected void onPause() {
+        CookieManager.getInstance().flush();
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        CookieManager.getInstance().flush();
+        super.onStop();
     }
 
     @Override
