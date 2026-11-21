@@ -45,6 +45,31 @@ public class MainActivity extends Activity {
 
         web.setWebViewClient(new WebViewClient() {
 
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // Experimental cosmetic-only suppression. Runs only on the
+                // top-level Apps Script page, never on the six apps' source.
+                Uri page = Uri.parse(url);
+                if (!"script.google.com".equalsIgnoreCase(page.getHost())) return;
+                String js = "(function(){" +
+                    "function hide(){" +
+                    "var nodes=document.querySelectorAll('div,aside,section');" +
+                    "for(var i=0;i<nodes.length;i++){var e=nodes[i];" +
+                    "if(e.children.length>5)continue;" +
+                    "var t=(e.innerText||'').trim();" +
+                    "if(t.length<20||t.length>260)continue;" +
+                    "if(!(/Google Apps Script|Google Apps লিপি|Google Apps স্ক্রিপ্ট/i.test(t)))continue;" +
+                    "var r=e.getBoundingClientRect();" +
+                    "if(r.height>0&&r.height<160&&r.top<220){" +
+                    "e.style.setProperty('display','none','important');" +
+                    "break;}}}" +
+                    "hide();setTimeout(hide,700);setTimeout(hide,1800);" +
+                    "})();";
+                view.evaluateJavascript(js, null);
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(
                 WebView view,
