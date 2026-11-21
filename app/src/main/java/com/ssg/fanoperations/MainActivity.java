@@ -207,6 +207,15 @@ public class MainActivity extends Activity {
             .setAcceptThirdPartyCookies(web, true);
 
         web.setWebViewClient(new WebViewClient() {
+            // Apply the Android-only presentation fix as soon as visible content commits,
+            // rather than waiting until all page resources have finished loading.
+            @Override
+            public void onPageCommitVisible(WebView view, String url) {
+                super.onPageCommitVisible(view, url);
+                hideAppsScriptInfoStrip(view);
+                hideAppsScriptNotice();
+            }
+
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
@@ -256,6 +265,16 @@ public class MainActivity extends Activity {
         });
 
         web.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+                // Google may insert its informational strip after the initial DOM load.
+                // Retry at milestones; the injected observer handles subsequent changes.
+                if (newProgress == 25 || newProgress == 50 || newProgress == 75 || newProgress == 100) {
+                    hideAppsScriptInfoStrip(view);
+                    hideAppsScriptNotice();
+                }
+            }
 
             @Override
             public boolean onShowFileChooser(
