@@ -109,14 +109,8 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                hideAppsScriptNotice();
-            }
-
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
                 hideAppsScriptInfoStrip(view);
+                hideAppsScriptNotice();
             }
 
 
