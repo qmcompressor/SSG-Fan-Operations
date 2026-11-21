@@ -18,6 +18,61 @@ public class MainActivity extends Activity {
     private static final String HOME =
         "https://qmcompressor.github.io/SSG-Fan-Operations/";
 
+    // APK-only presentation changes. The six Apps Script sources remain untouched.
+    private static final String MOBILE_CSS =
+        "@media(max-width:760px){" +
+        "html,body{max-width:100%!important;overflow-x:hidden!important}" +
+        "main{padding:8px 8px 55px!important}" +
+        ".mobilehead{padding:7px 11px!important;min-height:48px!important}" +
+        ".mobilehead button{min-width:42px!important;min-height:42px!important}" +
+        ".toolbar{padding:8px!important;gap:7px!important;margin-bottom:8px!important}" +
+        ".toolbar select,.toolbar input{min-width:0!important;max-width:100%!important}" +
+        ".hero,.eff-hero{padding:11px 13px!important;margin-bottom:8px!important}" +
+        ".hero h1,.eff-hero h1{font-size:17px!important;line-height:1.25!important}" +
+        ".hero p,.eff-hero p{font-size:11px!important;line-height:1.35!important}" +
+        ".cards,.eff-kpis{gap:8px!important;margin-top:8px!important}" +
+        ".kpi,.eff-kpi{min-height:88px!important;padding:10px!important;border-radius:12px!important}" +
+        ".kpi strong,.eff-kpi b{font-size:clamp(18px,5.2vw,25px)!important;overflow-wrap:anywhere!important}" +
+        ".stats,.insights,.twocol,.eff-grid{gap:8px!important;margin-top:8px!important}" +
+        ".stat,.panel{padding:10px!important}" +
+        ".sectiontitle{margin:10px 0 7px!important;font-size:15px!important}" +
+        ".imm-extra .imm-head{margin:10px 0 7px!important;padding:10px!important}" +
+        ".imm-extra .imm-panel,.imm-extra .imm-card{padding:10px!important}" +
+        ".eff-filters{padding:9px!important;gap:7px!important}" +
+        ".chartbox,.eff-chart{height:220px!important}" +
+        ".tablewrap,.eff-table,.imm-table{max-width:100%!important}" +
+        "button{touch-action:manipulation!important;-webkit-tap-highlight-color:transparent}" +
+        ".primary,.toolbar button{min-height:42px!important;border-radius:10px!important}" +
+        "}";
+
+    private static String jsQuoted(String s) {
+        StringBuilder b = new StringBuilder("\\\"");
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if (ch == '\\\\' || ch == '"') b.append('\\\\');
+            if (ch == '\\n') b.append("\\\\n");
+            else if (ch == '\\r') b.append("\\\\r");
+            else b.append(ch);
+        }
+        return b.append('"').toString();
+    }
+
+    private void applyAndroidLayout(WebView view, String url) {
+        if (url == null) return;
+        android.net.Uri uri = android.net.Uri.parse(url);
+        String host = uri.getHost();
+        if (host == null || !(host.equalsIgnoreCase("script.google.com") ||
+                host.equalsIgnoreCase("script.googleusercontent.com"))) return;
+        String js = "(function(){try{" +
+            "var title=(document.title||'').toLowerCase();" +
+            "var known=['injection molding','grill factory','assembly','crushing','iqc','meter'].some(function(x){return title.indexOf(x)>=0});" +
+            "if(!known||!document.head||document.getElementById('ssg-android-compact-style'))return;" +
+            "var style=document.createElement('style');style.id='ssg-android-compact-style';" +
+            "style.textContent=" + jsQuoted(MOBILE_CSS) + ";document.head.appendChild(style);" +
+            "}catch(e){}})();";
+        view.evaluateJavascript(js, null);
+    }
+
     private WebView web;
     private ValueCallback<Uri[]> uploadCallback;
     private static final int PICK_FILE = 101;
@@ -94,7 +149,7 @@ public class MainActivity extends Activity {
         WebSettings s = web.getSettings();
 
         // Identify this Android wrapper without changing desktop browser layouts.
-        s.setUserAgentString(s.getUserAgentString() + " SSGFanOMAndroid/1.0");
+        // Keep standard user agent for Google authentication compatibility.
 
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
@@ -109,7 +164,7 @@ public class MainActivity extends Activity {
         CookieManager.getInstance()
             .setAcceptThirdPartyCookies(web, true);
 
-        web.setWebViewClient(new WebViewClient() {
+        web.setWebViewClient(new WebViewClient() {\n            @Override public void onPageFinished(WebView view, String url) {\n                super.onPageFinished(view, url);\n                applyAndroidLayout(view, url);\n            }
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
