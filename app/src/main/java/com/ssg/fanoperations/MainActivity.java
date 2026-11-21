@@ -152,10 +152,11 @@ public class MainActivity extends Activity {
         CookieManager.getInstance()
             .setAcceptThirdPartyCookies(web, true);
 
-        web.setWebViewClient(new WebViewClient() {\n            @Override public void onPageFinished(WebView view, String url) {\n                super.onPageFinished(view, url);\n                applyAndroidLayout(view, url);\n            }
+        web.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                applyAndroidLayout(view, url);
                 hideAppsScriptInfoStrip(view);
                 hideAppsScriptNotice();
                 // Persist cookies that the server marks as persistent.
