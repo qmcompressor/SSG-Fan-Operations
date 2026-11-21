@@ -45,18 +45,6 @@ public class MainActivity extends Activity {
         ".primary,.toolbar button{min-height:42px!important;border-radius:10px!important}" +
         "}";
 
-    private static String jsQuoted(String s) {
-        StringBuilder b = new StringBuilder("\\\"");
-        for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
-            if (ch == '\\\\' || ch == '"') b.append('\\\\');
-            if (ch == '\\n') b.append("\\\\n");
-            else if (ch == '\\r') b.append("\\\\r");
-            else b.append(ch);
-        }
-        return b.append('"').toString();
-    }
-
     private void applyAndroidLayout(WebView view, String url) {
         if (url == null) return;
         android.net.Uri uri = android.net.Uri.parse(url);
@@ -68,7 +56,7 @@ public class MainActivity extends Activity {
             "var known=['injection molding','grill factory','assembly','crushing','iqc','meter'].some(function(x){return title.indexOf(x)>=0});" +
             "if(!known||!document.head||document.getElementById('ssg-android-compact-style'))return;" +
             "var style=document.createElement('style');style.id='ssg-android-compact-style';" +
-            "style.textContent=" + jsQuoted(MOBILE_CSS) + ";document.head.appendChild(style);" +
+            "style.textContent=" + org.json.JSONObject.quote(MOBILE_CSS) + ";document.head.appendChild(style);" +
             "}catch(e){}})();";
         view.evaluateJavascript(js, null);
     }
