@@ -93,6 +93,9 @@ public class MainActivity extends Activity {
 
         WebSettings s = web.getSettings();
 
+        // Identify this Android wrapper without changing desktop browser layouts.
+        s.setUserAgentString(s.getUserAgentString() + " SSGFanOMAndroid/1.0");
+
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setDatabaseEnabled(true);
