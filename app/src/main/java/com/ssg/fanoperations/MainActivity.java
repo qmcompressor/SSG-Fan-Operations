@@ -76,6 +76,8 @@ public class MainActivity extends Activity {
         ".imm-extra .imm-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}" +
         ".imm-extra .imm-card{padding:9px!important}" +
         ".sectiontitle{margin:8px 0 6px!important}" +
+        ".eff-filters.ssg-imm-collapsed{display:none!important}" +
+        ".ssg-imm-filter-toggle{display:block!important;width:100%!important;min-height:42px!important;text-align:left!important;background:#e9f2ff!important;color:#103d70!important;border:1px solid #b9d5fa!important;border-radius:10px!important;font-size:13px!important;font-weight:700!important;padding:8px 12px!important;margin:0 0 7px!important}" +
         "}";
     
     private void applyAndroidLayout(WebView view, String url) {
@@ -96,6 +98,19 @@ public class MainActivity extends Activity {
             "if(!st){st=d.createElement('style');st.id=id;d.head.appendChild(st);}" +
             "st.textContent=" + org.json.JSONObject.quote(MOBILE_CSS) +
                 "+(imm?" + org.json.JSONObject.quote(IMM_CSS) + ":'');" +
+            "if(imm){" +
+            "var filters=d.querySelector('.eff-filters');" +
+            "if(filters&&!d.getElementById('ssg-imm-filter-toggle')){" +
+            "var toggle=d.createElement('button');toggle.type='button';" +
+            "toggle.id='ssg-imm-filter-toggle';toggle.className='ssg-imm-filter-toggle';" +
+            "toggle.textContent='More Filters ▾';toggle.setAttribute('aria-expanded','false');" +
+            "filters.parentNode.insertBefore(toggle,filters);" +
+            "filters.classList.add('ssg-imm-collapsed');" +
+            "toggle.addEventListener('click',function(){" +
+            "var closed=filters.classList.toggle('ssg-imm-collapsed');" +
+            "toggle.textContent=closed?'More Filters ▾':'Hide Filters ▴';" +
+            "toggle.setAttribute('aria-expanded',String(!closed));});" +
+            "}}" +
             "}catch(e){}})();";
         view.evaluateJavascript(js, null);
     }
