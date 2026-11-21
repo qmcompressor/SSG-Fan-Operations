@@ -1,0 +1,7 @@
+SSG Fan Operations icon update
+1. Open your GitHub repository and click Add file > Upload files.
+2. Drag the app folder from this extracted package to the upload area.
+3. Confirm paths app/src/main/AndroidManifest.xml and app/src/main/res/mipmap-*/ic_launcher.png.
+4. Commit changes to main.
+5. Wait for GitHub Actions Build Android APK to succeed. Download the new artifact.
+6. Install the new APK over the existing app (same applicationId/signing key required). If Android reports a signature mismatch, do not uninstall until your app data and sign-in implications are checked.
