@@ -45,6 +45,39 @@ public class MainActivity extends Activity {
         ".primary,.toolbar button{min-height:42px!important;border-radius:10px!important}" +
         "}";
 
+    // Injection Molding: compact mobile spacing, without removing any filters or data.
+    private static final String IMM_CSS =
+        "@media(max-width:760px){" +
+        "body{overflow-x:hidden!important}" +
+        "main{padding:6px 7px 55px!important}" +
+        ".mobilehead{padding:5px 9px!important;min-height:45px!important}" +
+        ".toolbar{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;padding:7px!important;margin:0 0 7px!important;gap:6px!important}" +
+        ".toolbar>div{min-width:0!important;width:100%!important}" +
+        ".toolbar select,.toolbar input{width:100%!important;min-width:0!important;height:40px!important;padding:6px!important}" +
+        ".toolbar button{min-height:40px!important;padding:7px 9px!important}" +
+        ".hero,.eff-hero{padding:9px 11px!important;margin:0 0 7px!important;border-radius:10px!important}" +
+        ".hero h1,.eff-hero h1{font-size:16px!important;line-height:1.2!important}" +
+        ".hero p,.eff-hero p{font-size:10px!important;margin:3px 0 0!important;line-height:1.25!important}" +
+        ".eff-filters{padding:8px!important;gap:6px!important;margin-bottom:7px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}" +
+        ".eff-filters>div{min-width:0!important}" +
+        ".eff-filters label{margin-bottom:3px!important;font-size:10px!important}" +
+        ".eff-filters select{height:39px!important;min-width:0!important;width:100%!important}" +
+        ".eff-kpis,.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin:7px 0!important}" +
+        ".eff-kpi,.kpi{min-height:77px!important;padding:9px!important}" +
+        ".eff-kpi b,.kpi strong{font-size:clamp(18px,5.1vw,24px)!important;margin-top:5px!important}" +
+        ".eff-kpi small{margin-top:2px!important}" +
+        ".panel{padding:9px!important}" +
+        ".eff-grid,.twocol{gap:7px!important;margin:7px 0!important}" +
+        ".eff-chart,.chartbox{height:205px!important}" +
+        ".imm-extra .imm-head{padding:9px!important;margin:8px 0 6px!important}" +
+        ".imm-extra .imm-panel{padding:9px!important}" +
+        ".imm-extra .imm-grid{gap:7px!important;margin:7px 0!important}" +
+        ".imm-extra .imm-chart{height:200px!important}" +
+        ".imm-extra .imm-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}" +
+        ".imm-extra .imm-card{padding:9px!important}" +
+        ".sectiontitle{margin:8px 0 6px!important}" +
+        "}";
+    
     private void applyAndroidLayout(WebView view, String url) {
         if (url == null) return;
         android.net.Uri uri = android.net.Uri.parse(url);
@@ -52,11 +85,17 @@ public class MainActivity extends Activity {
         if (host == null || !(host.equalsIgnoreCase("script.google.com") ||
                 host.equalsIgnoreCase("script.googleusercontent.com"))) return;
         String js = "(function(){try{" +
-            "var title=(document.title||'').toLowerCase();" +
-            "var known=['injection molding','grill factory','assembly','crushing','iqc','meter'].some(function(x){return title.indexOf(x)>=0});" +
-            "if(!known||!document.head||document.getElementById('ssg-android-compact-style'))return;" +
-            "var style=document.createElement('style');style.id='ssg-android-compact-style';" +
-            "style.textContent=" + org.json.JSONObject.quote(MOBILE_CSS) + ";document.head.appendChild(style);" +
+            "var d=document;" +
+            "if(!d.head)return;" +
+            "var imm=!!(d.querySelector('.eff-kpis,.eff-hero,.imm-extra,.machine-table')||" +
+            "/injection molding/i.test(d.title||''));" +
+            "var known=imm||!!d.querySelector('.cards,.kpi,.toolbar,.hero');" +
+            "if(!known)return;" +
+            "var id='ssg-android-compact-style';" +
+            "var st=d.getElementById(id);" +
+            "if(!st){st=d.createElement('style');st.id=id;d.head.appendChild(st);}" +
+            "st.textContent=" + org.json.JSONObject.quote(MOBILE_CSS) +
+                "+(imm?" + org.json.JSONObject.quote(IMM_CSS) + ":'');" +
             "}catch(e){}})();";
         view.evaluateJavascript(js, null);
     }
