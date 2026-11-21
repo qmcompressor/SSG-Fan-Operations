@@ -65,6 +65,25 @@ public class MainActivity extends Activity {
         view.evaluateJavascript(script, null);
     }
 
+
+    // Best-effort: hide the Google Apps Script information notice only
+    // inside this Android WebView. No changes to the hosted web apps.
+    private void hideAppsScriptNotice() {
+        if (web == null) return;
+        String js = "(function(){"
+            + "if(!/\\.google\\.(com|usercontent\\.com)/.test(location.hostname))return;"
+            + "var selectors=['.goog-apps-script-info-bar','.apps-script-banner'];"
+            + "var style=document.getElementById('ssg-webview-banner-style');"
+            + "if(!style){style=document.createElement('style');style.id='ssg-webview-banner-style';"
+            + "style.textContent=selectors.join(',')+'{display:none!important}';"
+            + "(document.head||document.documentElement).appendChild(style);}"
+            + "function clean(){document.querySelectorAll(selectors.join(',')).forEach(function(el){el.style.setProperty('display','none','important');});}"
+            + "clean();if(!window.__ssgBannerObserver){window.__ssgBannerObserver=new MutationObserver(clean);"
+            + "window.__ssgBannerObserver.observe(document.documentElement,{childList:true,subtree:true});}"
+            + "})();";
+        web.evaluateJavascript(js, null);
+    }
+
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -87,6 +106,12 @@ public class MainActivity extends Activity {
             .setAcceptThirdPartyCookies(web, true);
 
         web.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                hideAppsScriptNotice();
+            }
+
 
             @Override
             public void onPageFinished(WebView view, String url) {
